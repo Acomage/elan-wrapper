@@ -1,6 +1,11 @@
 # elan-wrapper
 通过本地 HTTPS 镜像离线安装 Lean4 工具链的辅助脚本
 
+# Demo
+<video src="https://github.com/user-attachments/assets/ffecab4d-e23d-4e49-8c39-d65288b0b874" autoplay loop muted playsinline />
+
+
+
 <details>
 <summary>English README (click to expand)</summary>
 
