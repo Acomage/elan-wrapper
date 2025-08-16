@@ -15,8 +15,7 @@ Helper scripts to install Lean4 toolchains via a local HTTPS mirror when network
 - Notice: Content is mostly GPT-generated and lightly edited. Not widely tested. Understand what scripts do before running them.
 - How it works: Elan queries release.lean-lang.org for the releases JSON and downloads assets like lean-<ver>-linux.tar.zst. This project spins up a local HTTPS server that impersonates release.lean-lang.org so elan can install from local files.
 - Applicability: Tested only on CachyOS. Should work on Linux distributions that use /etc/hosts for DNS and keep trust stores in /etc/ca-certificates/trust-source/anchors/ or /usr/local/share/ca-certificates/. On other distros and on Windows/macOS, lib/server.py may still work but you must adjust host and generate/install your own CA and server certs manually.
-- Limitations: Nightly channel is fetched from GitHub, not release.lean-lang.org, so it’s currently unsupported. Origin override for elan toolchains is not supported. Only releases from leanprover/lean4 are considered.
-
+- Limitations: Origin override for elan toolchains is not supported.
 ## Prerequisites
 - Linux
 - Python 3.12 (tested on 3.12.11)
@@ -34,10 +33,7 @@ during the script run, it will prompt you to use elan to download the toolchain.
 Once the download is complete, type `done` to clean up and restore the system.
 
 ## Roadmap
-- Move mirror workdir to /tmp
 - Improve README with more detailed instructions
-- Explicitly support only leanprover/lean4 releases
-- Support nightly (mirroring GitHub) or dual servers
 - Fetch JSON from release.lean-lang.org instead of generating via data_gen
 - Better interactive guidance
 - i18n
@@ -83,9 +79,7 @@ https://release.lean-lang.org/lean4/v4.22.0/lean-4.22.0-linux.tar.zst
 - 对于其他发行版以及 Windows/macOS，lib/server.py 仍可能可用，但需要手动修改 host 并自行签发与安装 CA 和服务器证书。
 
 ## 限制
-- 不支持 nightly 渠道（nightly 由 GitHub 发布，非 release.lean-lang.org）；
 - 不支持使用 elan 指定 toolchain 的 origin；
-- 目前仅考虑 leanprover/lean4 的 releases。
 
 ## 前置条件
 - Linux 环境
@@ -106,12 +100,10 @@ sudo uv run main.py --run
 
 ## TODO
 1. 改进文档，提供更详细的用法说明
-2. 明确声明仅支持 leanprover/lean4 的 releases
-3. 支持 nightly,这可以通过篡改browser_download_url实现。
-4. 直接请求 release.lean-lang.org 获取 JSON，而非使用 data_gen 生成
-5. 提供更好的交互式引导
-6. 可能的 i18n 支持
-7. 代码重构
+2. 直接请求 release.lean-lang.org 获取 JSON，而非使用 data_gen 生成
+3. 提供更好的交互式引导
+4. 可能的 i18n 支持
+5. 代码重构
 
 ## 贡献
 如果你也在安装 Lean4 时屡屡受网络困扰，欢迎贡献你的力量。即使没有编程背景，也可通过测试脚本、反馈问题、改进文档等方式参与。如果该脚本对你有用，欢迎点个 star，帮助项目被更多人看到、测试与改进。
