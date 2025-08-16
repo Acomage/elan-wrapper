@@ -97,7 +97,6 @@ sudo uv run main.py --run
 ```
 脚本运行时会要求用户使用elan进行下载，在此期间下载即可。
 下载完成，输入done即可清理环境，还原系统。
-```bash
 
 
 ## TODO
