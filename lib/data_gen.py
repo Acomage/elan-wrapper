@@ -1,117 +1,72 @@
 import json
 from dataclasses import dataclass
 import pathlib
-from lib.config import CONFIG
+from lib.config import CONFIG, DATA_PATH
+
+resource_file_name = pathlib.Path(DATA_PATH).name
 
 
 @dataclass
 class Release:
     release_type: str
-    version_str: str
-    time: str
+    version: str
+    created_at: str
 
     @staticmethod
     def from_json(data: dict) -> "Release":
         return Release(
             release_type=data["channel"],
-            version_str=data["version"],
-            time=data["time"],
+            version=data["version"],
+            created_at=data["created_at"],
         )
 
     def to_json(self) -> dict:
-        if self.release_type == "stable":
-            assets = []
-            for arch in [
-                "darwin",
-                "darwin_aarch64",
-                "linux",
-                "linux_aarch64",
-                "windows",
-            ]:
-                for ext in [".tar.zst", ".zip"]:
-                    name = f"lean-{self.version_str}-{arch}{ext}"
-                    url = f"https://release.lean-lang.org/lean4/v{self.version_str}/{name}"
-                    assets.append({"name": name, "browser_download_url": url})
-            return {
-                "name": f"v{self.version_str}",
-                "created_at": self.time,
-                "assets": assets,
-            }
-        elif self.release_type == "beta":
-            assets = [
-                {
-                    "name": "CMakeCache.txt",
-                    "browser_download_url": f"https://release.lean-lang.org/lean4/v{self.version_str}/CMakeCache.txt",
-                },
-                {
-                    "name": "cmake_install.cmake",
-                    "browser_download_url": f"https://release.lean-lang.org/lean4/v{self.version_str}/cmake_install.cmake",
-                },
-                {
-                    "name": "Makefile",
-                    "browser_download_url": f"https://release.lean-lang.org/lean4/v{self.version_str}/Makefile",
-                },
-            ]
-            for arch in [
-                "darwin",
-                "darwin_aarch64",
-                "linux",
-                "linux_aarch64",
-                "windows",
-            ]:
-                for ext in [".tar.zst", ".zip"]:
-                    name = f"lean-{self.version_str}-{arch}{ext}"
-                    url = f"https://release.lean-lang.org/lean4/v{self.version_str}/{name}"
-                    assets.append({"name": name, "browser_download_url": url})
-            return {
-                "name": f"v{self.version_str}",
-                "created_at": self.time,
-                "assets": assets,
-            }
+        """
+        this function generates a fake json
+        """
+        assets = []
+        for arch in [
+            "darwin",
+            "darwin_aarch64",
+            "linux",
+            "linux_aarch64",
+            "windows",
+        ]:
+            for ext in [".tar.zst", ".zip"]:
+                name = self.name_map(arch, ext)
+                url = f"https://release.lean-lang.org/{resource_file_name}"
+                assets.append({"name": name, "browser_download_url": url})
+        return {
+            "name": self.father_name_map(),
+            "created_at": self.created_at,
+            "assets": assets,
+        }
+
+    def name_map(self, arch: str, ext: str) -> str:
+        if self.release_type == "nightly":
+            date = self.created_at.split("T")[0]
+            return f"lean-{self.version}-nightly-{date}-{arch}{ext}"
         else:
-            date = self.time.split("T")[0]
-            assets = [
-                {
-                    "name": "CMakeCache.txt",
-                    "browser_download_url": f"https://github.com/leanprover/lean4-nightly/releases/download/nightly-{date}/CMakeCache.txt",
-                },
-                {
-                    "name": "cmake_install.cmake",
-                    "browser_download_url": f"https://github.com/leanprover/lean4-nightly/releases/download/nightly-{date}/cmake_install.cmake",
-                },
-                {
-                    "name": "Makefile",
-                    "browser_download_url": f"https://github.com/leanprover/lean4-nightly/releases/download/nightly-{date}/Makefile",
-                },
-            ]
-            for arch in [
-                "darwin",
-                "darwin_aarch64",
-                "linux",
-                "linux_aarch64",
-                "windows",
-            ]:
-                for ext in [".tar.zst", ".zip"]:
-                    name = f"lean-{self.version_str}-nightly-{date}-{arch}{ext}"
-                    url = f"https://github.com/leanprover/lean4-nightly/releases/download/nightly-{date}/{name}"
-                    assets.append({"name": name, "browser_download_url": url})
-            return {
-                "name": f"nightly-{date}",
-                "created_at": self.time,
-                "assets": assets,
-            }
+            return f"lean-{self.version}-{arch}{ext}"
+
+    def father_name_map(self) -> str:
+        if self.release_type == "nightly":
+            date = self.created_at.split("T")[0]
+            return f"nightly-{date}"
+        else:
+            return f"v{self.version}"
 
 
 def data_gen(path: pathlib.Path, release: Release):
     data = {"version": "1", "stable": [], "beta": [], "nightly": []}
-    data[release.release_type].append(release)
+    data[release.release_type].append(release.to_json())
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, default=lambda r: r.to_json(), indent=4)
+        json.dump(data, f, indent=4)
 
 
 def main():
     v4220 = Release.from_json(CONFIG)
-    data_gen(pathlib.Path("mirror/data.json").absolute(), v4220)
+    data_gen(pathlib.Path("data/test.json").absolute(), v4220)
 
 
 if __name__ == "__main__":

@@ -66,8 +66,8 @@ def main():
     parser.add_argument("--host", default="0.0.0.0")
     parser.add_argument("--port", type=int, default=8443)  # 443 needs root
     parser.add_argument("--root", default="/tmp/lean4_mirror")
-    parser.add_argument("--cert", default="mirror/server.crt")
-    parser.add_argument("--key", default="mirror/server.key")
+    parser.add_argument("--cert", default="/tmp/lean4_mirror/server.crt")
+    parser.add_argument("--key", default="/tmp/lean4_mirror/server.key")
     args = parser.parse_args()
 
     root = Path(args.root).resolve()
