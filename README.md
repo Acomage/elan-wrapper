@@ -105,14 +105,13 @@ sudo uv run main.py --run
 
 
 ## TODO
-1. 将 mirror 的工作目录从当前目录迁移到 /tmp
-2. 改进文档，提供更详细的用法说明
-3. 明确声明仅支持 leanprover/lean4 的 releases
-4. 支持 nightly（从 GitHub 获取）或通过双服务器实现
-5. 直接请求 release.lean-lang.org 获取 JSON，而非使用 data_gen 生成
-6. 提供更好的交互式引导
-7. 可能的 i18n 支持
-8. 代码重构
+1. 改进文档，提供更详细的用法说明
+2. 明确声明仅支持 leanprover/lean4 的 releases
+3. 支持 nightly,这可以通过篡改browser_download_url实现。
+4. 直接请求 release.lean-lang.org 获取 JSON，而非使用 data_gen 生成
+5. 提供更好的交互式引导
+6. 可能的 i18n 支持
+7. 代码重构
 
 ## 贡献
 如果你也在安装 Lean4 时屡屡受网络困扰，欢迎贡献你的力量。即使没有编程背景，也可通过测试脚本、反馈问题、改进文档等方式参与。如果该脚本对你有用，欢迎点个 star，帮助项目被更多人看到、测试与改进。
