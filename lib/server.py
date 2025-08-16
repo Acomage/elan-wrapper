@@ -73,7 +73,7 @@ def main():
     root = Path(args.root).resolve()
     data_json = root / "data.json"
     if not data_json.exists():
-        raise SystemExit(f"Missing {data_json}")
+        raise SystemExit(f"缺少 {data_json}")
 
     Handler = build_handler(root, data_json)
 

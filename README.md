@@ -24,6 +24,10 @@ pass
 1.阅览并修改main.py的内容
 2.把mirror从当前目录移动到/tmp中工作
 3.修改readme，提供更详细的用法说明
+4.data_gen只有在stable的情况下正确，需修改
+5.声明只支持来自leanprover/lean4的release
+6.nightly版本不是从release.lean-lang.org而是从github中获取的，需要修改
 
+# 贡献
 ```
 ```

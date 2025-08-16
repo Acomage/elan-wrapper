@@ -19,17 +19,87 @@ class Release:
         )
 
     def to_json(self) -> dict:
-        assets = []
-        for arch in ["darwin", "darwin_aarch64", "linux", "linux_aarch64", "windows"]:
-            for ext in [".tar.zst", ".zip"]:
-                name = f"lean-{self.version_str}-{arch}{ext}"
-                url = f"https://release.lean-lang.org/lean4/v{self.version_str}/{name}"
-                assets.append({"name": name, "browser_download_url": url})
-        return {
-            "name": f"v{self.version_str}",
-            "created_at": self.time,
-            "assets": assets,
-        }
+        if self.release_type == "stable":
+            assets = []
+            for arch in [
+                "darwin",
+                "darwin_aarch64",
+                "linux",
+                "linux_aarch64",
+                "windows",
+            ]:
+                for ext in [".tar.zst", ".zip"]:
+                    name = f"lean-{self.version_str}-{arch}{ext}"
+                    url = f"https://release.lean-lang.org/lean4/v{self.version_str}/{name}"
+                    assets.append({"name": name, "browser_download_url": url})
+            return {
+                "name": f"v{self.version_str}",
+                "created_at": self.time,
+                "assets": assets,
+            }
+        elif self.release_type == "beta":
+            assets = [
+                {
+                    "name": "CMakeCache.txt",
+                    "browser_download_url": f"https://release.lean-lang.org/lean4/v{self.version_str}/CMakeCache.txt",
+                },
+                {
+                    "name": "cmake_install.cmake",
+                    "browser_download_url": f"https://release.lean-lang.org/lean4/v{self.version_str}/cmake_install.cmake",
+                },
+                {
+                    "name": "Makefile",
+                    "browser_download_url": f"https://release.lean-lang.org/lean4/v{self.version_str}/Makefile",
+                },
+            ]
+            for arch in [
+                "darwin",
+                "darwin_aarch64",
+                "linux",
+                "linux_aarch64",
+                "windows",
+            ]:
+                for ext in [".tar.zst", ".zip"]:
+                    name = f"lean-{self.version_str}-{arch}{ext}"
+                    url = f"https://release.lean-lang.org/lean4/v{self.version_str}/{name}"
+                    assets.append({"name": name, "browser_download_url": url})
+            return {
+                "name": f"v{self.version_str}",
+                "created_at": self.time,
+                "assets": assets,
+            }
+        else:
+            date = self.time.split("T")[0]
+            assets = [
+                {
+                    "name": "CMakeCache.txt",
+                    "browser_download_url": f"https://github.com/leanprover/lean4-nightly/releases/download/nightly-{date}/CMakeCache.txt",
+                },
+                {
+                    "name": "cmake_install.cmake",
+                    "browser_download_url": f"https://github.com/leanprover/lean4-nightly/releases/download/nightly-{date}/cmake_install.cmake",
+                },
+                {
+                    "name": "Makefile",
+                    "browser_download_url": f"https://github.com/leanprover/lean4-nightly/releases/download/nightly-{date}/Makefile",
+                },
+            ]
+            for arch in [
+                "darwin",
+                "darwin_aarch64",
+                "linux",
+                "linux_aarch64",
+                "windows",
+            ]:
+                for ext in [".tar.zst", ".zip"]:
+                    name = f"lean-{self.version_str}-nightly-{date}-{arch}{ext}"
+                    url = f"https://github.com/leanprover/lean4-nightly/releases/download/nightly-{date}/{name}"
+                    assets.append({"name": name, "browser_download_url": url})
+            return {
+                "name": f"nightly-{date}",
+                "created_at": self.time,
+                "assets": assets,
+            }
 
 
 def data_gen(path: pathlib.Path, release: Release):

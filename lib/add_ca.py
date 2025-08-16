@@ -127,7 +127,7 @@ def ensure_hosts_entry(domain: str):
     print("Host确认完毕.")
 
 
-def main():
+def add_ca():
     server_root = Path("mirror").absolute()
     domain = "release.lean-lang.org"
 
@@ -144,5 +144,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
-
+    add_ca()

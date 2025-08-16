@@ -81,7 +81,7 @@ def delete_mirror_data():
     rm_dir_recursive(server_root)
 
 
-def main():
+def clean():
     print("正在还原系统...")
     remove_trusted_ca()
     remove_hosts_entry()
@@ -90,4 +90,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    clean()

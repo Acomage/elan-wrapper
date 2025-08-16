@@ -28,14 +28,19 @@ import signal
 import sys
 import time
 import shutil
+import select
 import subprocess
 from pathlib import Path
+from lib.mirror_gen import mirror_gen
+from lib.add_ca import add_ca
+from lib.config import ELAN_COMMAND
+from lib.clean import clean
 
 # Import project config
 try:
     from lib.config import CONFIG, DATA_PATH  # type: ignore
 except Exception as e:
-    print(f"Failed to import config.py: {e}", file=sys.stderr)
+    print(f"导入配置失败: {e}", file=sys.stderr)
     sys.exit(1)
 
 ROOT = Path(__file__).parent.resolve()
@@ -70,9 +75,7 @@ def run_cmd(
             subprocess.run(cmd, shell=shell, check=check, env=env)
             return ""
     except subprocess.CalledProcessError as e:
-        print(
-            f"[ERROR] Command failed (exit {e.returncode}): {display}", file=sys.stderr
-        )
+        print(f"[ERROR] 命令执行失败 (exit {e.returncode}): {display}", file=sys.stderr)
         if e.stdout:
             print(e.stdout, file=sys.stderr)
         if check:
@@ -84,21 +87,20 @@ def ensure_config():
     # Channel
     channel = CONFIG.get("channel")
     if not channel:
-        print("CONFIG['channel'] missing in config.py", file=sys.stderr)
+        print("未在config.py中设置channel", file=sys.stderr)
         sys.exit(1)
     # Data path
     data_path = Path(DATA_PATH)
     if not data_path.exists():
-        print(f"DATA_PATH file not found: {data_path}", file=sys.stderr)
+        print(f"工具链文件不存在: {data_path}", file=sys.stderr)
         sys.exit(1)
-    return channel, data_path
 
 
 def start_server(port: int) -> subprocess.Popen:
     """Start HTTPS server in background."""
     server_path = ROOT / "lib" / "server.py"
     if not server_path.exists():
-        print("server.py not found", file=sys.stderr)
+        print("server.py 不存在，你使用的仓库也许已破损", file=sys.stderr)
         sys.exit(1)
     cmd = [PYTHON, str(server_path), "--port", str(port)]
     print(f"[START SERVER] {' '.join(cmd)} (background)")
@@ -116,13 +118,15 @@ def start_server(port: int) -> subprocess.Popen:
                 print(proc.stdout.read())
             sys.exit(1)
         # Read any available lines non-blocking
-        if proc.stdout and proc.stdout.peek(1):
-            line = proc.stdout.readline()
-            if line:
-                print(f"[SERVER] {line.rstrip()}")
-                if "Serving HTTPS" in line:
-                    ready = True
-                    break
+        if proc.stdout:
+            rlist, _, _ = select.select([proc.stdout], [], [], 0)
+            if rlist:
+                line = proc.stdout.readline()
+                if line:
+                    print(f"[SERVER] {line.rstrip()}")
+                    if "Serving HTTPS" in line:
+                        ready = True
+                        break
         time.sleep(0.2)
     if not ready:
         print("Server did not confirm readiness within timeout; continuing anyway.")
@@ -149,51 +153,45 @@ def stop_server(proc: subprocess.Popen):
             print(remaining)
 
 
-def check_prereqs(port: int):
+def check_prereqs():
     # elan existence
     if not shutil.which("elan"):
-        print("elan not found in PATH. Install elan first.", file=sys.stderr)
+        print("elan 不在PATH中. 可能未下载elan或未添加到环境变量中", file=sys.stderr)
         sys.exit(1)
-    if not shutil.which("lean"):
-        print("lean not found (will be installed by elan).")
     # Root / caps note
-    if port < 1024:
-        if os.geteuid() != 0:
-            print(
-                "WARNING: Using privileged port (<1024) without running as root. "
-                "Ensure python has CAP_NET_BIND_SERVICE or run with sudo."
-            )
+    if os.geteuid() != 0:
+        print(
+            "WARNING: 未使用root权限运行\n这可能导致无法启动服务器并暴露443端口\n尝试使用sudo运行"
+        )
 
 
 def orchestrate(port: int):
-    channel, data_path = ensure_config()
-    check_prereqs(port)
+    ensure_config()
+    check_prereqs()
 
     # 1 mirror generation
-    run_cmd([PYTHON, str(ROOT / "lib" / "mirror_gen.py")])
+    # run_cmd([PYTHON, str(ROOT / "lib" / "mirror_gen.py")])
+    mirror_gen()
 
     # 2 add CA + cert
-    run_cmd([PYTHON, str(ROOT / "lib" / "add_ca.py")])
+    # run_cmd([PYTHON, str(ROOT / "lib" / "add_ca.py")])
+    add_ca()
 
     # 3 start server
     server_proc = start_server(port)
 
     try:
         # 4 elan toolchain install / default
-        run_cmd(
-            ["elan", "toolchain", "install", channel], check=False
-        )  # ignore if already installed
-        run_cmd(["elan", "default", channel])
-
-        # 5 lean version
-        run_cmd(["lean", "--version"], check=False)
+        run_cmd(ELAN_COMMAND)
+        run_cmd(["elan", "show"])
 
     finally:
         # 6 stop server before cleanup
         stop_server(server_proc)
 
     # 7 cleanup (remove hosts + CA trust copies)
-    run_cmd([PYTHON, str(ROOT / "lib" / "clean.py")])
+    # run_cmd([PYTHON, str(ROOT / "lib" / "clean.py")])
+    clean()
 
     print("\n[DONE] Orchestration complete.")
 
@@ -202,14 +200,13 @@ def build_parser():
     p = argparse.ArgumentParser(
         prog="lean-mirror-wrapper",
         add_help=False,
-        description="Wrapper orchestration tool. See README.md for detailed usage.",
+        description="Wrapper tool. See README.md for detailed usage.",
     )
     p.add_argument(
         "--run",
         action="store_true",
         help="Run full workflow (mirror -> cert -> server -> elan -> clean)",
     )
-    p.add_argument("--port", type=int, default=443, help="HTTPS port (default 443)")
     p.add_argument("--help", action="store_true", help="Show this help message")
     return p
 
@@ -219,30 +216,12 @@ def main():
     args = parser.parse_args()
 
     if args.help or (not args.run):
-        print("""lean-mirror-wrapper
-A simple orchestrator for generating a local Lean mirror, serving it via HTTPS,
-installing the configured toolchain with elan, and cleaning system modifications.
-
-Usage:
-  uv run main.py --run [--port 443]
-
-Config:
-  Edit lib/config.py before running to set:
-    CONFIG = {'channel': '<channel or version>', 'version': 'X.Y.Z', 'time': '...'}
-    DATA_PATH = '/absolute/path/to/lean-<version>-linux.tar.zst'
-
-Prerequisites:
-  - elan installed and on PATH
-  - 'DATA_PATH' file exists locally (download beforehand)
-  - For port 443: run with sudo or grant CAP_NET_BIND_SERVICE to python
-
-Actions executed in --run mode:
-  mirror_gen -> add_ca -> start HTTPS server -> elan install/default -> lean --version -> cleanup
-
-See README.md for more details.""")
+        print(
+            "lean-mirror-wrapper\nA simple tool for generating a local Lean mirror, serving it via HTTPS,\ninstalling the configured toolchain with elan, and cleaning system modifications.\n\nyou \033[31mMUST\033[0m read README.md before using this tool.\n\nUsage:\n\tuv run main.py --run\n"
+        )
         return
 
-    orchestrate(args.port)
+    orchestrate(443)
 
 
 if __name__ == "__main__":
