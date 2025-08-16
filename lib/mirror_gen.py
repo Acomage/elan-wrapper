@@ -22,3 +22,7 @@ def mirror_gen():
     except FileNotFoundError:
         print(f"release文件：{DATA_PATH} 不存在")
         exit(1)
+
+
+if __name__ == "__main__":
+    mirror_gen()

@@ -106,7 +106,7 @@ def verify_certificate(server_crt: Path, domain: str):
 def ensure_hosts_entry(domain: str):
     """Ensure /etc/hosts has 127.0.0.1 domain entry."""
     hosts_path = Path("/etc/hosts")
-    entry = f"127.0.0.1\t{domain}"
+    entry = f"127.0.0.1  {domain}"
     try:
         if hosts_path.exists():
             text = hosts_path.read_text(encoding="utf-8").splitlines()

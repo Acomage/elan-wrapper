@@ -70,6 +70,7 @@ def remove_hosts_entry():
         tmp_path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
         print("正在还原/etc/hosts")
         run_command(f"sudo cp {tmp_path} /etc/hosts")
+        run_command("rm /tmp/hosts.cleaned")
         print(f"从/etc/hosts 中移除了: {'\n'.join(drop_lines)}")
     else:
         print(f"未在/etc/hosts 中找到包含{DOMAIN}的条目")

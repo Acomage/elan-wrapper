@@ -23,13 +23,10 @@ Helper scripts to install Lean4 toolchains via a local HTTPS mirror when network
 2) Visit release.lean-lang.org to find the corresponding release metadata, then update lib/config.py accordingly.
 3) From the repo root:
 ```bash
-uv run main.py --run
+sudo uv run main.py --run
 ```
-   Alternatively:
-```bash
-python main.py --run
-```
-   Note: Only tested on Python 3.12.11.
+during the script run, it will prompt you to use elan to download the toolchain. Download it as prompted.
+Once the download is complete, type `done` to clean up and restore the system.
 
 ## Roadmap
 - Move mirror workdir to /tmp
@@ -96,13 +93,12 @@ https://release.lean-lang.org/lean4/v4.22.0/lean-4.22.0-linux.tar.zst
 2. 访问 release.lean-lang.org，查找对应版本的发布信息，并据此修改 lib/config.py 中的配置。
 3. 在项目根目录运行：
 ```bash
-uv run main.py --run
+sudo uv run main.py --run
 ```
-   如果不使用 uv，可尝试：
+脚本运行时会要求用户使用elan进行下载，在此期间下载即可。
+下载完成，输入done即可清理环境，还原系统。
 ```bash
-python main.py --run
-```
-   注意：仅在 Python 3.12.11 上测试。
+
 
 ## TODO
 1. 将 mirror 的工作目录从当前目录迁移到 /tmp
