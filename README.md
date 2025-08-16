@@ -2,7 +2,7 @@
 通过本地 HTTPS 镜像离线安装 Lean4 工具链的辅助脚本
 
 # Demo
-<video src="https://github.com/user-attachments/assets/ffecab4d-e23d-4e49-8c39-d65288b0b874" autoplay loop muted playsinline></video>
+<video src="https://github.com/user-attachments/assets/cfabab6e-8fb3-4cad-b7ab-4387333b3488" autoplay loop muted playsinline></video>
 
 
 
