@@ -6,7 +6,7 @@ from pathlib import Path
 
 def mirror_gen():
     print("正在创建服务器...")
-    server_root = Path("mirror").absolute()
+    server_root = Path("/tmp/lean4_mirror")
     server_root.mkdir(parents=True, exist_ok=True)
     print("正在生成release数据...")
     release = Release.from_json(CONFIG)

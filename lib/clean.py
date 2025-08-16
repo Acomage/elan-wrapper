@@ -78,7 +78,7 @@ def remove_hosts_entry():
 
 def delete_mirror_data():
     print("正在删除服务器...")
-    server_root = Path("mirror").absolute()
+    server_root = Path("/tmp/lean4_mirror")
     rm_dir_recursive(server_root)
 
 

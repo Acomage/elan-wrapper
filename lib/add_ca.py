@@ -128,7 +128,7 @@ def ensure_hosts_entry(domain: str):
 
 
 def add_ca():
-    server_root = Path("mirror").absolute()
+    server_root = Path("/tmp/lean4_mirror")
     domain = "release.lean-lang.org"
 
     print("正在设置根CA与服务器证书:")
