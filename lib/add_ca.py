@@ -1,5 +1,5 @@
 from pathlib import Path
-from utils import run_command
+from lib.utils import run_command
 
 CA_NAME = "local-root-ca"
 CA_CERT_FILENAME = "rootCA.pem"

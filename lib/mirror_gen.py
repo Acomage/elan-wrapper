@@ -1,6 +1,6 @@
-from config import CONFIG, DATA_PATH
-from utils import run_command
-from data_gen import data_gen, Release
+from lib.config import CONFIG, DATA_PATH
+from lib.utils import run_command
+from lib.data_gen import data_gen, Release
 from pathlib import Path
 
 

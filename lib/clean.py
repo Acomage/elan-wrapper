@@ -1,5 +1,5 @@
 from pathlib import Path
-from utils import rm_dir_recursive, run_command
+from lib.utils import rm_dir_recursive, run_command
 
 CA_NAME = "local-root-ca"
 DOMAIN = "release.lean-lang.org"

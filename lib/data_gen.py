@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 import pathlib
-from config import CONFIG
+from lib.config import CONFIG
 
 
 @dataclass
