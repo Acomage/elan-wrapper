@@ -57,7 +57,7 @@ def orchestrate():
 
     project_path = Path(".").absolute()
     server_proc = subprocess.Popen(
-        ["sudo", "uv", "run", "-m", "lib.server", "--port", "443"],
+        ["sudo", "python", "-m", "lib.server", "--port", "443"],
         cwd=project_path,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,

@@ -1,7 +1,0 @@
-[project]
-name = "elan-warpper"
-version = "0.1.0"
-description = "A tool help lean4 user in China install lean4 by elan"
-readme = "README.md"
-requires-python = ">=3.12"
-dependencies = []
