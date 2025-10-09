@@ -18,8 +18,7 @@ Helper scripts to install Lean4 toolchains via a local HTTPS mirror when network
 - Limitations: Origin override for elan toolchains is not supported.
 ## Prerequisites
 - Linux
-- Python 3.12 (tested on 3.12.11)
-- uv (recommended) or a working Python environment
+- Python 3.12 or 3.13 (tested on 3.12.11 and 3.13.7)
 - Ability to edit /etc/hosts and install local CA certificates (may require sudo)
 
 ## Usage
@@ -83,8 +82,7 @@ https://release.lean-lang.org/lean4/v4.22.0/lean-4.22.0-linux.tar.zst
 
 ## 前置条件
 - Linux 环境
-- Python 3.12（在 3.12.11 上测试）
-- 建议安装 uv；否则可直接用系统 Python
+- Python 3.12或3.13（在 3.12.11, 3.13.7上经过测试）
 - 需要具备修改 /etc/hosts 与安装本地 CA 证书的权限（可能需要 sudo）
 
 ## 用法
@@ -92,7 +90,7 @@ https://release.lean-lang.org/lean4/v4.22.0/lean-4.22.0-linux.tar.zst
 2. 访问 release.lean-lang.org，查找对应版本的发布信息，并据此修改 lib/config.py 中的配置。
 3. 在项目根目录运行：
 ```bash
-sudo uv run main.py --run
+python main.py --run
 ```
 脚本运行时会要求用户使用elan进行下载，在此期间下载即可。
 下载完成，输入done即可清理环境，还原系统。
